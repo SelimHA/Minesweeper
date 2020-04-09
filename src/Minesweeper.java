@@ -1,4 +1,5 @@
 import java.awt.GridLayout;
+import java.awt.Robot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -8,6 +9,7 @@ import java.util.Random;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.WindowConstants;
 
 public class Minesweeper extends JFrame implements MouseListener {
 	/**
@@ -76,6 +78,7 @@ public class Minesweeper extends JFrame implements MouseListener {
 				this.add(mineButtons[i][j]);
 			}
 		}
+		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		this.setTitle("Total mines: "+mines);
 		this.setSize(400, 400);
 		this.setVisible(true);
@@ -129,16 +132,38 @@ public class Minesweeper extends JFrame implements MouseListener {
 			disableAll();
 			lost();
 		}else {
-			button.setText(mineField[row][col]+"");
-			button.setFocusable(false);
-			button.removeMouseListener(this);
-			clickedFields++;
+			
+			if(mineField[row][col]==0) {
+				zeroFill(row,col);
+			}else {
+				button.setText(mineField[row][col]+"");
+				button.setFocusable(false);
+				button.removeMouseListener(this);
+				clickedFields++;
+			}
 			if(hasWon()) {
 				disableAll();
 				won();
 			}
 		}
 	}
+	
+	private void zeroFill(int row, int col) {
+		if((row<0 || col<0) ||(row>=size || col>=size)) {
+			return;
+		}
+		if(mineField[row][col]==0 && mineButtons[row][col].isFocusable()) {
+			mineButtons[row][col].setText(mineField[row][col]+"");
+			mineButtons[row][col].setFocusable(false);
+			mineButtons[row][col].removeMouseListener(this);
+			clickedFields++;
+			zeroFill(row+1,col);
+			zeroFill(row-1,col);
+			zeroFill(row,col+1);
+			zeroFill(row,col-1);
+		}
+	}
+	
 	
 	private void disableAll() {
 		for(int i = 0; i<size; i++) {
@@ -181,7 +206,40 @@ public class Minesweeper extends JFrame implements MouseListener {
 	}
 	
 	public static void main(String args[]) {
-		new Minesweeper(3,1);
+		int fieldSize = getFieldSize();
+		int mines = getMines(fieldSize);
+		new Minesweeper(fieldSize,mines);
+	}
+
+	private static int getMines(int fieldSize) {
+		while(true) {
+			try {
+				int maxMines = fieldSize*fieldSize/3;
+				int curSize = Integer.parseInt(JOptionPane.showInputDialog(null, "Please enter the size of the field (min 1, max "+maxMines+")"));
+				if(curSize<1 || curSize>maxMines) {
+					throw new Exception();
+				}else {
+					return curSize;
+				}
+			}catch(Exception e) {
+				JOptionPane.showMessageDialog(null, "Something went wrong please try again");
+			}
+		}
+	}
+
+	private static int getFieldSize() {
+		while(true) {
+			try {
+				int curSize = Integer.parseInt(JOptionPane.showInputDialog(null, "Please enter the size of the field (min 5, max 30)"));
+				if(curSize<5 || curSize>30) {
+					throw new Exception();
+				}else {
+					return curSize;
+				}
+			}catch(Exception e) {
+				JOptionPane.showMessageDialog(null, "Something went wrong please try again");
+			}
+		}
 	}
 
 
