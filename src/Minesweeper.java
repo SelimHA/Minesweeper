@@ -93,7 +93,7 @@ public class Minesweeper extends JFrame implements MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON2) {//right click
+		if (e.getButton() == MouseEvent.BUTTON3) {//right click
 			JButton source = (JButton)e.getSource();
 			handleRightClick(source);
 		}
@@ -152,15 +152,17 @@ public class Minesweeper extends JFrame implements MouseListener {
 		if((row<0 || col<0) ||(row>=size || col>=size)) {
 			return;
 		}
-		if(mineField[row][col]==0 && mineButtons[row][col].isFocusable()) {
+		if(mineButtons[row][col].isFocusable()) {
 			mineButtons[row][col].setText(mineField[row][col]+"");
 			mineButtons[row][col].setFocusable(false);
 			mineButtons[row][col].removeMouseListener(this);
 			clickedFields++;
-			zeroFill(row+1,col);
-			zeroFill(row-1,col);
-			zeroFill(row,col+1);
-			zeroFill(row,col-1);
+			if(mineField[row][col]==0) {
+				zeroFill(row+1,col);
+				zeroFill(row-1,col);
+				zeroFill(row,col+1);
+				zeroFill(row,col-1);
+			}
 		}
 	}
 	
